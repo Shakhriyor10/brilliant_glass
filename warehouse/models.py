@@ -1,10 +1,11 @@
-from django.db import models
-from django.core.validators import MinValueValidator
 from decimal import Decimal
+from django.core.validators import MinValueValidator
+from django.db import models
 from partners.models import Partner
 
 class GlassType(models.Model):
     name = models.CharField(max_length=120, unique=True)  # Прозрачное, Зеркало, Тонированное
+
     def __str__(self):
         return self.name
 
@@ -20,6 +21,9 @@ class StockReceipt(models.Model):
     note = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
 
     def __str__(self):
         return f"Receipt #{self.id} from {self.supplier.name}"
@@ -45,8 +49,17 @@ class StockSheet(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["created_at", "id"]
+
     def sheet_area_m2(self) -> Decimal:
         return (Decimal(self.width_mm) * Decimal(self.height_mm)) / Decimal(1_000_000)
+
+    def cost_per_m2(self) -> Decimal:
+        area = self.sheet_area_m2()
+        if area == 0:
+            return Decimal("0")
+        return Decimal(self.purchase_price_per_sheet) / area
 
     def total_remaining_area_m2(self) -> Decimal:
         return Decimal(self.remaining_area_m2_per_sheet) * Decimal(self.quantity)
