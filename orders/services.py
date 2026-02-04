@@ -1,8 +1,7 @@
 from decimal import Decimal
 from django.db import transaction
-from django.db.models import F
 from warehouse.models import StockSheet
-from .models import OrderItem, StockConsumption
+from .models import Order, OrderItem, StockConsumption
 
 class NotEnoughStock(Exception):
     pass
@@ -60,4 +59,10 @@ def allocate_stock_for_item(item: OrderItem):
         need_area -= Decimal(take)
 
     if need_area > 0:
-        raise NotEnoughStock(f"Not enough stock: missing {need_area} m2")
+        raise NotEnoughStock(f"Not enough stock for item {item.id}: missing {need_area} m2")
+
+
+@transaction.atomic
+def allocate_stock_for_order(order: Order):
+    for item in order.items.select_for_update():
+        allocate_stock_for_item(item)
