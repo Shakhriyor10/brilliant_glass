@@ -1,56 +1,68 @@
 from decimal import Decimal
-from django.db.models import DecimalField, ExpressionWrapper, F, Sum
-from django.db.models.functions import Coalesce
-from orders.models import Order, OrderItem
-from .models import Expense, Payment
+from django.db import transaction
+from warehouse.models import StockSheet
+from .models import Order, OrderItem, StockConsumption
+
+class NotEnoughStock(Exception):
+    pass
+
+@transaction.atomic
+def allocate_stock_for_item(item: OrderItem):
+    need_area = item.area_m2_total()  # сколько м2 надо под позицию
+
+    # Берём листы подходящего типа/толщины (FIFO по created_at)
+    sheets = (StockSheet.objects
+              .select_for_update()
+              .filter(
+                  glass_type=item.glass_type,
+                  thickness_mm=item.thickness_mm,
+                  remaining_area_m2_per_sheet__gt=0
+              )
+              .order_by("created_at"))
+
+    for sheet in sheets:
+        if need_area <= 0:
+            break
+
+        # сколько можем взять с этого листа (учитываем quantity)
+        total_available = sheet.total_remaining_area_m2()
+
+        if total_available <= 0:
+            continue
+
+        take = min(need_area, total_available)
+
+        # Списание делаем “с листов” пропорционально:
+        # упрощенно уменьшаем remaining_area_m2_per_sheet
+        # (если quantity > 1 — корректнее вести отдельные листы, но стартуем так)
+        per_sheet_available = Decimal(sheet.remaining_area_m2_per_sheet)
+        if per_sheet_available <= 0:
+            continue
+
+        # Уменьшаем остаток на одном листе, пока не спишем нужное
+        # Простое приближение: уменьшаем remaining_area_m2_per_sheet на take/quantity
+        delta_per_sheet = (Decimal(take) / Decimal(sheet.quantity))
+
+        new_remaining = per_sheet_available - delta_per_sheet
+        if new_remaining < 0:
+            new_remaining = Decimal("0")
+
+        sheet.remaining_area_m2_per_sheet = new_remaining
+        sheet.save(update_fields=["remaining_area_m2_per_sheet"])
+
+        StockConsumption.objects.create(
+            order_item=item,
+            stock_sheet=sheet,
+            consumed_area_m2=take
+        )
+
+        need_area -= Decimal(take)
+
+    if need_area > 0:
+        raise NotEnoughStock(f"Not enough stock for item {item.id}: missing {need_area} m2")
 
 
-def revenue_for_period(start_date, end_date) -> Decimal:
-    total_expression = ExpressionWrapper(F("sale_price") * F("quantity"), output_field=DecimalField())
-    total = (
-        OrderItem.objects.filter(order__date__range=(start_date, end_date))
-        .aggregate(total=Coalesce(Sum(total_expression), Decimal("0")))
-        .get("total")
-    )
-    return total
-
-
-def payments_for_period(start_date, end_date) -> Decimal:
-    total = (
-        Payment.objects.filter(date__range=(start_date, end_date))
-        .aggregate(total=Coalesce(Sum("amount"), Decimal("0")))
-        .get("total")
-    )
-    return total
-
-
-def expenses_for_period(start_date, end_date) -> Decimal:
-    total = (
-        Expense.objects.filter(date__range=(start_date, end_date))
-        .aggregate(total=Coalesce(Sum("amount"), Decimal("0")))
-        .get("total")
-    )
-    return total
-
-
-def cost_of_goods_for_period(start_date, end_date) -> Decimal:
-    total_cost = Decimal("0")
-    for order in Order.objects.filter(date__range=(start_date, end_date)):
-        total_cost += order.total_cost()
-    return total_cost
-
-
-def profit_for_period(start_date, end_date) -> Decimal:
-    return revenue_for_period(start_date, end_date) - cost_of_goods_for_period(start_date, end_date) - expenses_for_period(
-        start_date, end_date
-    )
-
-
-def top_clients(limit=5):
-    total_expression = ExpressionWrapper(F("items__sale_price") * F("items__quantity"), output_field=DecimalField())
-    data = (
-        Order.objects.values("client__name")
-        .annotate(total=Coalesce(Sum(total_expression), Decimal("0")))
-        .order_by("-total")[:limit]
-    )
-    return list(data)
+@transaction.atomic
+def allocate_stock_for_order(order: Order):
+    for item in order.items.select_for_update():
+        allocate_stock_for_item(item)
