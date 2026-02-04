@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}New Stock Sheet{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">New Stock Sheet</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="col-md-6">
+                {{ form.receipt.label_tag }}
+                {{ form.receipt }}
+                {{ form.receipt.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.glass_type.label_tag }}
+                {{ form.glass_type }}
+                {{ form.glass_type.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.thickness_mm.label_tag }}
+                {{ form.thickness_mm }}
+                {{ form.thickness_mm.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.width_mm.label_tag }}
+                {{ form.width_mm }}
+                {{ form.width_mm.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.height_mm.label_tag }}
+                {{ form.height_mm }}
+                {{ form.height_mm.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.quantity.label_tag }}
+                {{ form.quantity }}
+                {{ form.quantity.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.purchase_price_per_sheet.label_tag }}
+                {{ form.purchase_price_per_sheet }}
+                {{ form.purchase_price_per_sheet.errors }}
+            </div>
+            <div class="col-md-4">
+                {{ form.remaining_area_m2_per_sheet.label_tag }}
+                {{ form.remaining_area_m2_per_sheet }}
+                {{ form.remaining_area_m2_per_sheet.errors }}
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" type="submit">Save</button>
+                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_sheet_list' %}">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

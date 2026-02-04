@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}New Partner{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">New Partner</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="col-md-6">
+                {{ form.partner_type.label_tag }}
+                {{ form.partner_type }}
+                {{ form.partner_type.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.phone.label_tag }}
+                {{ form.phone }}
+                {{ form.phone.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.address.label_tag }}
+                {{ form.address }}
+                {{ form.address.errors }}
+            </div>
+            <div class="col-12">
+                {{ form.note.label_tag }}
+                {{ form.note }}
+                {{ form.note.errors }}
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" type="submit">Save</button>
+                <a class="btn btn-outline-secondary" href="{% url 'partners:list' %}">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}New Expense Category{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">New Expense Category</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="col-12">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" type="submit">Save</button>
+                <a class="btn btn-outline-secondary" href="{% url 'finance:expense_category_list' %}">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

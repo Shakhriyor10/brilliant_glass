@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}New Expense{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">New Expense</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="col-md-6">
+                {{ form.category.label_tag }}
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.amount.label_tag }}
+                {{ form.amount }}
+                {{ form.amount.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.date.label_tag }}
+                {{ form.date }}
+                {{ form.date.errors }}
+            </div>
+            <div class="col-12">
+                {{ form.note.label_tag }}
+                {{ form.note }}
+                {{ form.note.errors }}
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" type="submit">Save</button>
+                <a class="btn btn-outline-secondary" href="{% url 'finance:expense_list' %}">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
