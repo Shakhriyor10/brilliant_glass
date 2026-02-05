@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}New Stock Sheet{% endblock %}
+{% block title %}Новый складской лист{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">New Stock Sheet</h1>
+<h1 class="h3 mb-3">Новый складской лист</h1>
 <div class="card shadow-sm">
     <div class="card-body">
         <form method="post" class="row g-3">
@@ -50,8 +50,8 @@
                 {{ form.remaining_area_m2_per_sheet.errors }}
             </div>
             <div class="col-12 d-flex gap-2">
-                <button class="btn btn-success" type="submit">Save</button>
-                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_sheet_list' %}">Back</a>
+                <button class="btn btn-success" type="submit">Сохранить</button>
+                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_sheet_list' %}">Назад</a>
             </div>
         </form>
     </div>

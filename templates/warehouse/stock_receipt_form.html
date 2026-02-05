@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}New Receipt{% endblock %}
+{% block title %}Новый приход{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">New Stock Receipt</h1>
+<h1 class="h3 mb-3">Новый приход</h1>
 <div class="card shadow-sm">
     <div class="card-body">
         <form method="post" class="row g-3">
@@ -30,8 +30,8 @@
                 {{ form.note.errors }}
             </div>
             <div class="col-12 d-flex gap-2">
-                <button class="btn btn-success" type="submit">Save</button>
-                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_receipt_list' %}">Back</a>
+                <button class="btn btn-success" type="submit">Сохранить</button>
+                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_receipt_list' %}">Назад</a>
             </div>
         </form>
     </div>

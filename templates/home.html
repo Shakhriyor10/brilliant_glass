@@ -1,42 +1,42 @@
 {% extends 'base.html' %}
 
-{% block title %}CRM Dashboard{% endblock %}
+{% block title %}Панель CRM{% endblock %}
 
 {% block content %}
 <div class="row g-4">
     <div class="col-md-6 col-xl-3">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Partners</h5>
-                <p class="card-text">Manage clients and suppliers.</p>
-                <a class="btn btn-primary" href="{% url 'partners:list' %}">Open</a>
+                <h5 class="card-title">Партнеры</h5>
+                <p class="card-text">Управляйте клиентами и поставщиками.</p>
+                <a class="btn btn-primary" href="{% url 'partners:list' %}">Открыть</a>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Warehouse</h5>
-                <p class="card-text">Glass types, receipts, and stock sheets.</p>
-                <a class="btn btn-primary" href="{% url 'warehouse:glass_type_list' %}">Open</a>
+                <h5 class="card-title">Склад</h5>
+                <p class="card-text">Виды стекла, приходы и складские листы.</p>
+                <a class="btn btn-primary" href="{% url 'warehouse:glass_type_list' %}">Открыть</a>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Orders</h5>
-                <p class="card-text">Create orders and allocate stock.</p>
-                <a class="btn btn-primary" href="{% url 'orders:list' %}">Open</a>
+                <h5 class="card-title">Заказы</h5>
+                <p class="card-text">Создавайте заказы и распределяйте склад.</p>
+                <a class="btn btn-primary" href="{% url 'orders:list' %}">Открыть</a>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Finance</h5>
-                <p class="card-text">Track payments and expenses.</p>
-                <a class="btn btn-primary" href="{% url 'finance:expense_list' %}">Open</a>
+                <h5 class="card-title">Финансы</h5>
+                <p class="card-text">Отслеживайте платежи и расходы.</p>
+                <a class="btn btn-primary" href="{% url 'finance:expense_list' %}">Открыть</a>
             </div>
         </div>
     </div>

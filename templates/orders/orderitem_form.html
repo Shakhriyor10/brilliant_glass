@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Item{% endblock %}
+{% block title %}Добавить позицию{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">Add Item to Order #{{ order.id }}</h1>
+<h1 class="h3 mb-3">Добавить позицию к заказу №{{ order.id }}</h1>
 <div class="card shadow-sm">
     <div class="card-body">
         <form method="post" class="row g-3">
@@ -40,8 +40,8 @@
                 {{ form.sale_price.errors }}
             </div>
             <div class="col-12 d-flex gap-2">
-                <button class="btn btn-success" type="submit">Save</button>
-                <a class="btn btn-outline-secondary" href="{% url 'orders:detail' order.id %}">Back</a>
+                <button class="btn btn-success" type="submit">Сохранить</button>
+                <a class="btn btn-outline-secondary" href="{% url 'orders:detail' order.id %}">Назад</a>
             </div>
         </form>
     </div>
