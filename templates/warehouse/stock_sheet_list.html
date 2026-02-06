@@ -1,11 +1,28 @@
 {% extends 'base.html' %}
 
-{% block title %}Складские листы{% endblock %}
+{% block title %}Склад стекла{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Складские листы</h1>
-    <a class="btn btn-success" href="{% url 'warehouse:stock_sheet_create' %}">Добавить складской лист</a>
+    <h1 class="h3 mb-0">Склад стекла</h1>
+    <a class="btn btn-success" href="{% url 'warehouse:stock_income_create' %}">Добавить стекло в склад</a>
+</div>
+
+<div class="row g-3 mb-4">
+    {% for item in summary_by_type %}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Тип стекла</div>
+                    <div class="fw-semibold">{{ item.glass_type__name }}</div>
+                    <div class="mt-2">Листов на складе: <strong>{{ item.total_sheets|default:0 }}</strong></div>
+                    <div class="text-muted small">Позиций: {{ item.positions }}</div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-muted">Пока нет стекла на складе.</div>
+    {% endfor %}
 </div>
 
 <div class="card shadow-sm">
@@ -13,29 +30,31 @@
         <table class="table table-striped mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Приход</th>
-                    <th>Вид стекла</th>
-                    <th>Толщина</th>
-                    <th>Размер (мм)</th>
-                    <th>Количество</th>
-                    <th>Остаток м² на лист</th>
-                    <th>Закупочная цена</th>
+                    <th>Название стекла</th>
+                    <th>Поставщик</th>
+                    <th>Размер листа (мм)</th>
+                    <th>Листов</th>
+                    <th>Объем 1 листа (м²)</th>
+                    <th>Общий объем (м²)</th>
+                    <th>Цена за лист</th>
+                    <th>Сумма позиции</th>
                 </tr>
             </thead>
             <tbody>
                 {% for sheet in sheets %}
                     <tr>
-                        <td>#{{ sheet.receipt.id }} {{ sheet.receipt.supplier.name }}</td>
-                        <td>{{ sheet.glass_type.name }}</td>
-                        <td>{{ sheet.thickness_mm }} мм</td>
+                        <td>{{ sheet.glass_type.name }} ({{ sheet.thickness_mm }} мм)</td>
+                        <td>{{ sheet.receipt.supplier.name }}</td>
                         <td>{{ sheet.width_mm }} x {{ sheet.height_mm }}</td>
                         <td>{{ sheet.quantity }}</td>
-                        <td>{{ sheet.remaining_area_m2_per_sheet }}</td>
+                        <td>{{ sheet.sheet_area_m2|floatformat:4 }}</td>
+                        <td>{{ sheet.total_remaining_area_m2|floatformat:4 }}</td>
                         <td>{{ sheet.purchase_price_per_sheet }}</td>
+                        <td>{{ sheet.total_cost }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">Складских листов пока нет.</td>
+                        <td colspan="8" class="text-center text-muted py-4">Нет листов на складе.</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -44,7 +63,7 @@
 </div>
 
 <div class="mt-3">
-    <a class="btn btn-outline-secondary" href="{% url 'warehouse:glass_type_list' %}">Виды стекла</a>
+    <a class="btn btn-outline-secondary" href="{% url 'warehouse:glass_type_list' %}">Типы стекла</a>
     <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_receipt_list' %}">Приходы</a>
 </div>
 {% endblock %}

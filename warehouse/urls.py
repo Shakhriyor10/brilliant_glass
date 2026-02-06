@@ -10,4 +10,5 @@ urlpatterns = [
     path("receipts/new/", views.stock_receipt_create, name="stock_receipt_create"),
     path("sheets/", views.stock_sheet_list, name="stock_sheet_list"),
     path("sheets/new/", views.stock_sheet_create, name="stock_sheet_create"),
+    path("income/new/", views.stock_income_create, name="stock_income_create"),
 ]

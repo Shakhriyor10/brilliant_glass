@@ -4,11 +4,7 @@ from django.db import models
 from partners.models import Partner
 
 class GlassType(models.Model):
-    name = models.CharField("Название", max_length=120, unique=True)  # Прозрачное, Зеркало, Тонированное
-
-    class Meta:
-        verbose_name = "Вид стекла"
-        verbose_name_plural = "Виды стекла"
+    name = models.CharField(max_length=120, unique=True)  # Прозрачное, Зеркало, Тонированное
 
     def __str__(self):
         return self.name
@@ -18,48 +14,43 @@ class StockReceipt(models.Model):
         Partner,
         on_delete=models.PROTECT,
         limit_choices_to={"partner_type": Partner.SUPPLIER},
-        related_name="receipts",
-        verbose_name="Поставщик"
+        related_name="receipts"
     )
-    doc_no = models.CharField("Номер документа", max_length=80, blank=True)
-    date = models.DateField("Дата")
-    note = models.TextField("Примечание", blank=True)
+    doc_no = models.CharField(max_length=80, blank=True)
+    date = models.DateField()
+    note = models.TextField(blank=True)
 
-    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-date", "-id"]
-        verbose_name = "Приход"
-        verbose_name_plural = "Приходы"
 
     def __str__(self):
-        return f"Приход №{self.id} от {self.supplier.name}"
+        return f"Receipt #{self.id} from {self.supplier.name}"
 
 class StockSheet(models.Model):
     """
     Лист стекла (или партия листов одного размера).
     Мы храним остаток по площади.
     """
-    receipt = models.ForeignKey(StockReceipt, on_delete=models.CASCADE, related_name="sheets", verbose_name="Приход")
+    receipt = models.ForeignKey(StockReceipt, on_delete=models.CASCADE, related_name="sheets")
 
-    glass_type = models.ForeignKey(GlassType, on_delete=models.PROTECT, verbose_name="Вид стекла")
-    thickness_mm = models.PositiveIntegerField("Толщина, мм", validators=[MinValueValidator(1)])
+    glass_type = models.ForeignKey(GlassType, on_delete=models.PROTECT)
+    thickness_mm = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
-    width_mm = models.PositiveIntegerField("Ширина, мм")
-    height_mm = models.PositiveIntegerField("Высота, мм")
+    width_mm = models.PositiveIntegerField()
+    height_mm = models.PositiveIntegerField()
 
-    quantity = models.PositiveIntegerField("Количество", default=1, validators=[MinValueValidator(1)])
-    purchase_price_per_sheet = models.DecimalField("Цена закупки за лист", max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+    purchase_price_per_sheet = models.DecimalField(max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
 
     # Остаток по площади (на 1 лист) в м2 — удобно считать списания
-    remaining_area_m2_per_sheet = models.DecimalField("Остаток м² на лист", max_digits=14, decimal_places=4, default=0)
+    remaining_area_m2_per_sheet = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
-    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["created_at", "id"]
-        verbose_name = "Складской лист"
-        verbose_name_plural = "Складские листы"
 
     def sheet_area_m2(self) -> Decimal:
         return (Decimal(self.width_mm) * Decimal(self.height_mm)) / Decimal(1_000_000)
@@ -73,6 +64,9 @@ class StockSheet(models.Model):
     def total_remaining_area_m2(self) -> Decimal:
         return Decimal(self.remaining_area_m2_per_sheet) * Decimal(self.quantity)
 
+    def total_cost(self) -> Decimal:
+        return Decimal(self.purchase_price_per_sheet) * Decimal(self.quantity)
+
     def save(self, *args, **kwargs):
         # при создании: остаток = полная площадь листа
         if self.remaining_area_m2_per_sheet == 0:
@@ -80,4 +74,4 @@ class StockSheet(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.glass_type} {self.thickness_mm}мм {self.width_mm}x{self.height_mm} шт={self.quantity}"
+        return f"{self.glass_type} {self.thickness_mm}mm {self.width_mm}x{self.height_mm} qty={self.quantity}"
