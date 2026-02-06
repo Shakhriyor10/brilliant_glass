@@ -64,6 +64,9 @@ class StockSheet(models.Model):
     def total_remaining_area_m2(self) -> Decimal:
         return Decimal(self.remaining_area_m2_per_sheet) * Decimal(self.quantity)
 
+    def total_cost(self) -> Decimal:
+        return Decimal(self.purchase_price_per_sheet) * Decimal(self.quantity)
+
     def save(self, *args, **kwargs):
         # при создании: остаток = полная площадь листа
         if self.remaining_area_m2_per_sheet == 0:

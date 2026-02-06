@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить стекло в склад{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Добавить стекло в склад</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="col-12"><h2 class="h6 text-muted mb-0">От кого приход</h2></div>
+            <div class="col-md-6">{{ form.supplier.label_tag }}{{ form.supplier }}{{ form.supplier.errors }}</div>
+            <div class="col-md-3">{{ form.date.label_tag }}{{ form.date }}{{ form.date.errors }}</div>
+            <div class="col-md-3">{{ form.doc_no.label_tag }}{{ form.doc_no }}{{ form.doc_no.errors }}</div>
+            <div class="col-12">{{ form.note.label_tag }}{{ form.note }}{{ form.note.errors }}</div>
+
+            <div class="col-12 mt-2"><h2 class="h6 text-muted mb-0">Параметры стекла</h2></div>
+            <div class="col-md-4">{{ form.glass_type.label_tag }}{{ form.glass_type }}{{ form.glass_type.errors }}</div>
+            <div class="col-md-2">{{ form.thickness_mm.label_tag }}{{ form.thickness_mm }}{{ form.thickness_mm.errors }}</div>
+            <div class="col-md-2">{{ form.width_mm.label_tag }}{{ form.width_mm }}{{ form.width_mm.errors }}</div>
+            <div class="col-md-2">{{ form.height_mm.label_tag }}{{ form.height_mm }}{{ form.height_mm.errors }}</div>
+            <div class="col-md-2">{{ form.quantity.label_tag }}{{ form.quantity }}{{ form.quantity.errors }}</div>
+            <div class="col-md-4">{{ form.purchase_price_per_sheet.label_tag }}{{ form.purchase_price_per_sheet }}{{ form.purchase_price_per_sheet.errors }}</div>
+
+            <div class="col-md-4">
+                <label class="form-label">Объем 1 листа (м²)</label>
+                <input type="text" class="form-control" id="calc_area" readonly>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Общий объем (м²)</label>
+                <input type="text" class="form-control" id="calc_total_area" readonly>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Общая сумма</label>
+                <input type="text" class="form-control" id="calc_total_amount" readonly>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-success" type="submit">Сохранить</button>
+                <a class="btn btn-outline-secondary" href="{% url 'warehouse:stock_sheet_list' %}">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const widthInput = document.getElementById('id_width_mm');
+    const heightInput = document.getElementById('id_height_mm');
+    const quantityInput = document.getElementById('id_quantity');
+    const priceInput = document.getElementById('id_purchase_price_per_sheet');
+
+    const areaOut = document.getElementById('calc_area');
+    const totalAreaOut = document.getElementById('calc_total_area');
+    const totalAmountOut = document.getElementById('calc_total_amount');
+
+    function val(el) {
+        const v = parseFloat(el && el.value ? el.value : '0');
+        return isNaN(v) ? 0 : v;
+    }
+
+    function recalc() {
+        const width = val(widthInput);
+        const height = val(heightInput);
+        const qty = val(quantityInput);
+        const price = val(priceInput);
+
+        const area = (width * height) / 1000000;
+        const totalArea = area * qty;
+        const totalAmount = price * qty;
+
+        areaOut.value = area.toFixed(4);
+        totalAreaOut.value = totalArea.toFixed(4);
+        totalAmountOut.value = totalAmount.toFixed(2);
+    }
+
+    [widthInput, heightInput, quantityInput, priceInput].forEach((el) => {
+        if (el) {
+            el.addEventListener('input', recalc);
+        }
+    });
+
+    recalc();
+})();
+</script>
+{% endblock %}
